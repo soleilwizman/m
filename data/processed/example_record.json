@@ -1,0 +1,19 @@
+{
+  "title": "Caloric restriction extends ovarian lifespan via SIRT1-mediated autophagy in mice",
+  "pmid": "12345678",
+  "year": 2022,
+  "species": "Mus musculus",
+  "tissue_context": "ovarian follicles",
+  "target": "SIRT1",
+  "pathway": "autophagy / mTOR signaling",
+  "intervention": "30% caloric restriction for 12 months",
+  "modality": "dietary",
+  "phenotype": "increased primordial follicle reserve at 12 months",
+  "endpoint": "follicle count, FSH levels, fertility rate",
+  "effect_direction": "positive",
+  "evidence_type": "in_vivo",
+  "model_system": "C57BL/6 female mice",
+  "relevance_to_menopause_delay": "Dietary restriction preserves the follicle pool, potentially delaying menopause onset by slowing follicular atresia",
+  "translational_caveat": "Mouse estrous cycle differs from human menstrual cycle; sustained 30% caloric restriction is not clinically feasible",
+  "confidence_score": 0.82
+}

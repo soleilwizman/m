@@ -1,7 +1,17 @@
 """Generate a one-page decision brief from extracted records."""
+import os
+from pathlib import Path
 from typing import List
 
 import anthropic
+
+# Load .env if present
+_env = Path(__file__).parent.parent / ".env"
+if _env.exists():
+    for line in _env.read_text().splitlines():
+        if "=" in line and not line.startswith("#"):
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
 
 from .models import PaperRecord
 

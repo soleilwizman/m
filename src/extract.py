@@ -1,8 +1,18 @@
 """Extract structured claims from paper abstracts using Claude."""
 import json
+import os
+from pathlib import Path
 from typing import Dict
 
 import anthropic
+
+# Load .env if present
+_env = Path(__file__).parent.parent / ".env"
+if _env.exists():
+    for line in _env.read_text().splitlines():
+        if "=" in line and not line.startswith("#"):
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
 
 from .models import PaperRecord
 

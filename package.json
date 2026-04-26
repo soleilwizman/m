@@ -8,6 +8,7 @@
     "dev": "node server.js"
   },
   "dependencies": {
+    "@distube/ytsr": "^2.0.4",
     "express": "^4.19.2",
     "youtube-transcript": "^1.2.1"
   },

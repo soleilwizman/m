@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { YoutubeTranscript } = require('youtube-transcript');
+const ytsr = require('@distube/ytsr');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -187,6 +188,90 @@ app.post('/api/transcript', async (req, res) => {
       return res.status(404).json({ error: 'YouTube would not return a transcript for this video. It may be private, region-locked, or have captions disabled.' });
     }
     res.status(500).json({ error: message || 'Failed to fetch transcript.' });
+  }
+});
+
+function decodeXml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
+function pickThumb(c) {
+  if (!c) return null;
+  if (typeof c.thumbnail === 'string') return c.thumbnail;
+  if (Array.isArray(c.thumbnails) && c.thumbnails.length) {
+    const last = c.thumbnails[c.thumbnails.length - 1];
+    return typeof last === 'string' ? last : last && last.url;
+  }
+  if (c.thumbnail && c.thumbnail.url) return c.thumbnail.url;
+  if (c.iconImage && c.iconImage.url) return c.iconImage.url;
+  return null;
+}
+
+app.get('/api/search-channels', async (req, res) => {
+  const q = String(req.query.q || '').trim();
+  if (!q) return res.status(400).json({ error: 'Search query required.' });
+  try {
+    const result = await ytsr(q, { type: 'channel', safeSearch: false, limit: 12 });
+    const channels = (result.items || [])
+      .filter((c) => c && (c.id || c.channelID))
+      .map((c) => ({
+        id: c.id || c.channelID,
+        name: c.name || c.title || 'Unknown channel',
+        url: c.url || (c.id ? `https://www.youtube.com/channel/${c.id}` : null),
+        thumbnail: pickThumb(c),
+        verified: !!c.verified,
+        subscribers: c.subscribers || c.subCount || null,
+        description: c.description || c.shortDescription || '',
+      }));
+    res.json({ channels });
+  } catch (err) {
+    res.status(500).json({ error: (err && err.message) || 'Channel search failed.' });
+  }
+});
+
+app.get('/api/channel-videos', async (req, res) => {
+  const id = String(req.query.id || '').trim();
+  if (!/^UC[\w-]{20,}$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid channel ID.' });
+  }
+  try {
+    const feedRes = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`);
+    if (!feedRes.ok) {
+      return res.status(404).json({ error: 'Could not load that channel feed.' });
+    }
+    const xml = await feedRes.text();
+    const channelTitle = decodeXml((xml.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || 'Channel');
+    const channelAuthor = decodeXml((xml.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>/) || [])[1] || channelTitle);
+    const videos = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)]
+      .map((m) => {
+        const block = m[1];
+        const vid = (block.match(/<yt:videoId>([\s\S]*?)<\/yt:videoId>/) || [])[1];
+        const title = decodeXml((block.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '');
+        const published = (block.match(/<published>([\s\S]*?)<\/published>/) || [])[1] || null;
+        const description = decodeXml(
+          (block.match(/<media:description>([\s\S]*?)<\/media:description>/) || [])[1] || ''
+        );
+        if (!vid) return null;
+        return {
+          id: vid,
+          title,
+          published,
+          description: description.length > 220 ? description.slice(0, 220).trim() + '…' : description,
+          thumbnail: `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`,
+          url: `https://www.youtube.com/watch?v=${vid}`,
+        };
+      })
+      .filter(Boolean);
+    res.json({ channelId: id, channelTitle: channelAuthor, videos });
+  } catch (err) {
+    res.status(500).json({ error: (err && err.message) || 'Failed to load channel videos.' });
   }
 });
 

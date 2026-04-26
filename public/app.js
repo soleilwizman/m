@@ -23,11 +23,33 @@
   const VIEWS = { landing, loading, article, channelResults, channelPage };
   let currentView = 'landing';
   let lastChannel = null;
+  let toastTimer = null;
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const toastClose = document.getElementById('toastClose');
+  toastClose.addEventListener('click', hideToast);
+
   const articleBackBtn = document.getElementById('articleBackBtn');
   articleBackBtn.addEventListener('click', () => {
     if (lastChannel) showView('channelPage');
     else showLanding();
   });
+
+  function showToast(msg) {
+    if (!msg) return;
+    toastMsg.textContent = msg;
+    toast.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 7000);
+  }
+
+  function hideToast() {
+    toast.hidden = true;
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+  }
 
   document.querySelectorAll('.example').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -75,6 +97,7 @@
     const fromChannel = opts && opts.fromChannel;
     if (!fromChannel) lastChannel = null;
     hideError(errorEl);
+    hideToast();
     setSubmitLoading(submitBtn, true, 'Reading…', 'Read it');
     showView('loading');
     try {
@@ -94,10 +117,14 @@
       }
       showView('article');
     } catch (err) {
-      const target = lastChannel ? 'channelPage' : 'landing';
-      showError(errorEl, err.message || 'Something went wrong.');
-      if (target === 'channelPage') showView('channelPage');
-      else showLanding();
+      const message = err.message || 'Something went wrong.';
+      if (lastChannel) {
+        showToast(message);
+        showView('channelPage');
+      } else {
+        showError(errorEl, message);
+        showLanding();
+      }
     } finally {
       setSubmitLoading(submitBtn, false, 'Reading…', 'Read it');
     }
@@ -131,7 +158,7 @@
       renderChannelPage(channel, data);
       showView('channelPage');
     } catch (err) {
-      showError(searchError, err.message || 'Could not load channel.');
+      showToast(err.message || 'Could not load channel.');
       showView('channelResults');
     }
   }

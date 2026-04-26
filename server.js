@@ -100,6 +100,23 @@ function groupIntoParagraphs(segments) {
   return paragraphs;
 }
 
+const ENGLISH_LANGS = ['en', 'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-IN'];
+
+async function fetchEnglishTranscript(videoId) {
+  let lastErr;
+  for (const lang of ENGLISH_LANGS) {
+    try {
+      const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang });
+      if (segments && segments.length) return segments;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  const err = new Error('NO_ENGLISH_TRANSCRIPT');
+  err.cause = lastErr;
+  throw err;
+}
+
 async function fetchOEmbed(videoId) {
   const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
   try {
@@ -120,7 +137,7 @@ app.post('/api/transcript', async (req, res) => {
 
   try {
     const [segments, meta] = await Promise.all([
-      YoutubeTranscript.fetchTranscript(videoId),
+      fetchEnglishTranscript(videoId),
       fetchOEmbed(videoId),
     ]);
 
@@ -159,6 +176,9 @@ app.post('/api/transcript', async (req, res) => {
     });
   } catch (err) {
     const raw = err && err.message ? err.message : 'Failed to fetch transcript.';
+    if (raw === 'NO_ENGLISH_TRANSCRIPT') {
+      return res.status(404).json({ error: 'No English transcript is available for this video. Tubestack only reads English captions.' });
+    }
     const message = raw.replace(/\[YoutubeTranscript\]\s*🚨?\s*/i, '').trim();
     if (/disabled|TranscriptsDisabled/i.test(message)) {
       return res.status(404).json({ error: 'This video has captions turned off, so there is no transcript to read.' });

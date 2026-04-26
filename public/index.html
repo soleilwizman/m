@@ -26,6 +26,11 @@
       </nav>
     </header>
 
+    <div id="toast" class="toast" role="alert" hidden>
+      <span id="toastMsg"></span>
+      <button id="toastClose" type="button" aria-label="Dismiss">×</button>
+    </div>
+
     <main>
       <section id="landing" class="landing">
         <p class="eyebrow">A reader for the rest of YouTube.</p>
@@ -58,6 +63,51 @@
             Feynman on magnets
           </button>
         </div>
+
+        <div class="divider" role="separator"><span>or</span></div>
+
+        <p class="section-label">Find a creator</p>
+        <form id="searchForm" class="url-form" autocomplete="off">
+          <input
+            id="searchInput"
+            name="q"
+            type="search"
+            placeholder="Search a YouTuber by name (e.g. Marques Brownlee)"
+            aria-label="Search a YouTuber by name"
+            required
+          />
+          <button type="submit" id="searchBtn">Search</button>
+        </form>
+        <p id="searchError" class="form-error" role="alert" hidden></p>
+
+        <div class="examples">
+          <span>Try:</span>
+          <button class="example" type="button" data-search="Marques Brownlee">MKBHD</button>
+          <button class="example" type="button" data-search="Veritasium">Veritasium</button>
+          <button class="example" type="button" data-search="Lex Fridman">Lex Fridman</button>
+        </div>
+      </section>
+
+      <section id="channelResults" class="channel-results" hidden>
+        <button class="back-link" type="button" data-back="landing">← Back</button>
+        <h2 id="channelResultsTitle">Channels</h2>
+        <ul id="channelList" class="channel-list"></ul>
+        <p id="channelResultsEmpty" class="empty-state" hidden>No channels matched that search.</p>
+      </section>
+
+      <section id="channelPage" class="channel-page" hidden>
+        <button class="back-link" type="button" data-back="channelResults">← Back to results</button>
+        <header class="channel-head">
+          <img id="channelAvatar" class="channel-avatar" alt="" />
+          <div class="channel-meta">
+            <h2 id="channelName"></h2>
+            <p id="channelSub" class="channel-sub"></p>
+            <p id="channelDesc" class="channel-desc"></p>
+          </div>
+        </header>
+        <h3 class="videos-heading">Recent videos</h3>
+        <ul id="videoList" class="video-list"></ul>
+        <p id="videoListEmpty" class="empty-state" hidden>No public videos found in this channel's feed.</p>
       </section>
 
       <section id="loading" class="loading" hidden>
@@ -67,6 +117,7 @@
 
       <article id="article" class="article" hidden>
         <header class="article-head">
+          <button id="articleBackBtn" class="back-link" type="button" hidden></button>
           <p class="kicker">
             <span class="kicker-pub">Tubestack</span>
             <span class="kicker-sep">·</span>

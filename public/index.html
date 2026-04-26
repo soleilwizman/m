@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tubestack — Read any YouTube video</title>
+    <meta name="description" content="Paste any YouTube link and read it like a Substack essay." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand" aria-label="Tubestack home">
+        <span class="brand-mark" aria-hidden="true">T</span>
+        <span class="brand-name">Tubestack</span>
+      </a>
+      <nav class="site-nav">
+        <a href="#about">About</a>
+        <a href="https://www.youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+        <button id="readAnotherBtn" class="nav-cta" type="button" hidden>Read another</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="landing" class="landing">
+        <p class="eyebrow">A reader for the rest of YouTube.</p>
+        <h1 class="hero-title">Read videos<br />like essays.</h1>
+        <p class="hero-sub">
+          Paste any YouTube link. Tubestack pulls the transcript and lays it out the way it should
+          have been published — clean type, generous margins, and a quiet page to think on.
+        </p>
+
+        <form id="urlForm" class="url-form" autocomplete="off">
+          <input
+            id="urlInput"
+            name="url"
+            type="url"
+            inputmode="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            aria-label="YouTube URL"
+            required
+          />
+          <button type="submit" id="submitBtn">Read it</button>
+        </form>
+        <p id="formError" class="form-error" role="alert" hidden></p>
+
+        <div class="examples">
+          <span>Try:</span>
+          <button class="example" type="button" data-url="https://www.youtube.com/watch?v=UF8uR6Z6KLc">
+            Steve Jobs — Stanford 2005
+          </button>
+          <button class="example" type="button" data-url="https://www.youtube.com/watch?v=8jPQjjsBbIc">
+            Feynman on magnets
+          </button>
+        </div>
+      </section>
+
+      <section id="loading" class="loading" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Pulling transcript…</p>
+      </section>
+
+      <article id="article" class="article" hidden>
+        <header class="article-head">
+          <p class="kicker">
+            <span class="kicker-pub">Tubestack</span>
+            <span class="kicker-sep">·</span>
+            <a id="articleAuthor" class="kicker-author" href="#" target="_blank" rel="noreferrer"></a>
+          </p>
+          <h1 id="articleTitle"></h1>
+          <p class="byline">
+            <span id="articleMeta"></span>
+            <span class="kicker-sep">·</span>
+            <a id="articleVideoLink" href="#" target="_blank" rel="noreferrer">Watch on YouTube</a>
+          </p>
+          <figure class="hero-thumb">
+            <a id="articleThumbLink" href="#" target="_blank" rel="noreferrer">
+              <img id="articleThumb" alt="" />
+            </a>
+          </figure>
+        </header>
+        <div id="articleBody" class="article-body"></div>
+        <footer class="article-foot">
+          <p>
+            Transcript via YouTube. Tubestack reformats publicly available captions for easier reading.
+          </p>
+        </footer>
+      </article>
+
+      <section id="about" class="about">
+        <h2>What is this?</h2>
+        <p>
+          Tubestack is a tiny reader that turns any YouTube video into a quiet, scrollable page.
+          Drop a link in the box, and we'll fetch the captions, group them into paragraphs, and lay
+          everything out in the kind of typography you'd expect from a long read — not an autoplay feed.
+        </p>
+        <p>
+          Every paragraph is timestamped, so you can jump back into the video at the exact moment a
+          quote landed.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Tubestack — a calmer way to watch YouTube.</p>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

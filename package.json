@@ -1,0 +1,17 @@
+{
+  "name": "tubestack",
+  "version": "1.0.0",
+  "description": "Read YouTube transcripts in a clean, Substack-style reader.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "youtube-transcript": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
